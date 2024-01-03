@@ -1,20 +1,20 @@
 #include <Arduino.h>
 #include <OneWire.h>
-// #include <DallasTemperature.h>
+#include <DallasTemperature.h>
 // #include <QubitroMqttClient.h>
 // #include <WiFi.h>
 
-// #define DS18B20PIN 2
-#define TdsSensorPin 15
-//const int potPin = 4;
-// float ph;
+const int DS18B20PIN = 2;
+const int tdsSensorPin = 4;
+const int potPin = 15;
+float ph;
 float Value = 0;
 
 // int LED_BUILTIN = 2;
 
-// OneWire oneWire(DS18B20PIN);
+OneWire oneWire(DS18B20PIN);
 
-// DallasTemperature sensor(&oneWire);
+DallasTemperature sensor(&oneWire);
 
 // // WiFi Client
 // WiFiClient wifiClient;
@@ -35,40 +35,43 @@ float Value = 0;
 // unsigned long next = 0;
 
 void setup() {
-  Serial.begin(115200);
-  // pinMode(potPin, INPUT);
-  pinMode(TdsSensorPin, INPUT);
-  // sensor.begin();
+  Serial.begin(9600);
+  pinMode(potPin, INPUT);
+  //pinMode(DS18B20PIN, INPUT);
+  pinMode(tdsSensorPin, INPUT);
+  sensor.begin();
   // pinMode (LED_BUILTIN, OUTPUT);
 
   // wifi_init();
   // qubitro_init();
-
+Serial.println(F("----------IoT Water Quality Monitoring System----------"));
 }
 void loop() {
-  Serial.println("----------IoT Water Quality Monitoring System----------");
-  int sensorValue = analogRead(TdsSensorPin);
+  
+  int sensorValue = analogRead(tdsSensorPin);
   float voltage = sensorValue * (3.3 / 4096.0);
 
-  Serial.print("TDS Sensor Output (V): ");
+  Serial.print(F("TDS: "));
   Serial.print(voltage);
-  Serial.println();
-  delay(1000);
+  Serial.print(F("\t"));
+   
 
-  // Value = analogRead(potPin);
+  Value = analogRead(potPin);
   // Serial.print("PH Sensor Output (V): ");
   // Serial.println(Value);
 
-  // float voltage1 = Value * (3.3 / 4095.0);
-  // ph = (3.3 * voltage1);
-  // Serial.print("PH Value : ");
-  // Serial.println(ph);
+  float voltage1 = Value * (3.3 / 4095.0);
+  ph = (3.3 * voltage1);
+  Serial.print(F("PH: "));
+  Serial.print(ph);
+  Serial.print(F("\t"));
 
-  // sensor.requestTemperatures();
-  // float tempinC = sensor.getTempCByIndex(0);
-  // Serial.print("Temperature : ");
-  // Serial.println(tempinC);
-
+  sensor.requestTemperatures();
+  float tempinC = sensor.getTempCByIndex(0);
+  Serial.print(F("Temp: "));
+  Serial.println(tempinC);
+  Serial.println(F("******************************************************\n"));
+  
 
   // digitalWrite(LED_BUILTIN, HIGH);
   // delay(1000);
@@ -80,6 +83,7 @@ void loop() {
   //   mqttClient.beginMessage(deviceID);
   //   mqttClient.print(payload);
   //   mqttClient.endMessage();
+  delay(3000);
 }
 
 // void wifi_init() {
