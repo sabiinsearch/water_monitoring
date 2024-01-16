@@ -56,15 +56,15 @@ void loop() {
   Serial.print(F("\t"));
    
 
-  Value = analogRead(potPin);
-  // Serial.print("PH Sensor Output (V): ");
-  // Serial.println(Value);
+  // Value = analogRead(potPin);
+  // // Serial.print("PH Sensor Output (V): ");
+  // // Serial.println(Value);
 
-  float voltage1 = Value * (3.3 / 4095.0);
-  ph = (3.3 * voltage1);
-  Serial.print(F("PH: "));
-  Serial.print(ph);
-  Serial.print(F("\t"));
+  // float voltage1 = Value * (3.3 / 4095.0);
+  // ph = (3.3 * voltage1);
+  // Serial.print(F("PH: "));
+  // Serial.print(ph);
+  // Serial.print(F("\t"));
 
   sensor.requestTemperatures();
   float tempinC = sensor.getTempCByIndex(0);
