@@ -37,7 +37,7 @@ DallasTemperature sensor(&oneWire);
 void setup() {
   Serial.begin(9600);
   pinMode(potPin, INPUT);
-  //pinMode(DS18B20PIN, INPUT);
+  pinMode(DS18B20PIN, INPUT);
   pinMode(tdsSensorPin, INPUT);
   sensor.begin();
   // pinMode (LED_BUILTIN, OUTPUT);
@@ -49,12 +49,12 @@ Serial.println(F("----------IoT Water Quality Monitoring System----------"));
 void loop() {
   
   int turbidityValue = analogRead(tdsSensorPin);
-  int turbidity = map(turbidityValue, 0, 2800, 5, 1);
-  // float voltage = turbidityValue * (3.3 / 4096.0);
+  //int turbidity = map(turbidityValue, 0, 2800, 5, 1);
+  int turbidity = turbidityValue * (3.3 / 4096.0);
 
   Serial.print(F("TDS: "));
 //  Serial.print(voltage);
-    Serial.print(turbidityValue);
+    Serial.print(turbidity);
   Serial.print(F("\t"));
    
 
