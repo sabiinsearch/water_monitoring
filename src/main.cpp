@@ -5,7 +5,7 @@
 // #include <WiFi.h>
 
 const int DS18B20PIN = 2;
-const int tdsSensorPin = 36;
+const int turbuditySensorPin = 4;
 const int potPin = 15;
 float ph;
 float Value = 0;
@@ -38,7 +38,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(potPin, INPUT);
   pinMode(DS18B20PIN, INPUT);
-  pinMode(tdsSensorPin, INPUT);
+  pinMode(turbuditySensorPin, INPUT);
   sensor.begin();
   // pinMode (LED_BUILTIN, OUTPUT);
 
@@ -48,13 +48,13 @@ Serial.println(F("----------IoT Water Quality Monitoring System----------"));
 }
 void loop() {
   
-  int turbidityValue = analogRead(tdsSensorPin);
+  int turbidityValue = analogRead(turbuditySensorPin);
   //int turbidity = map(turbidityValue, 0, 2800, 5, 1);
-  int turbidity = turbidityValue * (3.3 / 4096.0);
+  //int turbidity = turbidityValue * (3.3 / 4096.0);
 
-  Serial.print(F("TDS: "));
+  Serial.print(F("Turbudity: "));
 //  Serial.print(voltage);
-    Serial.print(turbidity);
+    Serial.print(turbidityValue);
   Serial.print(F("\t"));
    
 
