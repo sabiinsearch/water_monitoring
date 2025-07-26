@@ -1,139 +1,64 @@
-#include <Arduino.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
-// #include <QubitroMqttClient.h>
-// #include <WiFi.h>
+/*
+ Setup your scale and start the sketch WITHOUT a weight on the scale
+ Once readings are displayed place the weight on the scale
+ Press +/- or a/z to adjust the calibration_factor until the output readings match the known weight
+ Arduino pin 6 -> HX711 CLK
+ Arduino pin 5 -> HX711 DOUT
+ Arduino pin 5V -> HX711 VCC
+ Arduino pin GND -> HX711 GND 
+*/
 
-const int DS18B20PIN = 2;
-const int turbuditySensorPin = 4;
-const int potPin = 15;
-float ph;
-float Value = 0;
+#include "HX711.h"
 
-// int LED_BUILTIN = 2;
+#define DOUT 12
+#define CLK  13
 
-OneWire oneWire(DS18B20PIN);
+HX711 scale;
 
-DallasTemperature sensor(&oneWire);
-
-// // WiFi Client
-// WiFiClient wifiClient;
-
-// // Qubitro Client
-// QubitroMqttClient mqttClient(wifiClient);
-
-
-// // WiFi Credentials
-// char ssid[] = "xxx";   
-// char pass[] = "xxx";
-
-// char deviceID[] = "xxx";
-// char deviceToken[] = "xxx";
-// const char host[] = "broker.qubitro.com";
-// int port = 1883;
-
-// unsigned long next = 0;
+float calibration_factor = 2230; // this calibration factor is adjusted according to my load cell
+float units;
+float ounces;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(potPin, INPUT);
-  pinMode(DS18B20PIN, INPUT);
-  pinMode(turbuditySensorPin, INPUT);
-  sensor.begin();
-  // pinMode (LED_BUILTIN, OUTPUT);
+  scale.begin(12, 13);
+  Serial.println("HX711 calibration sketch");
+  Serial.println("Remove all weight from scale");
+  Serial.println("After readings begin, place known weight on scale");
+  Serial.println("Press + or a to increase calibration factor");
+  Serial.println("Press - or z to decrease calibration factor");
 
-  // wifi_init();
-  // qubitro_init();
-Serial.println(F("----------IoT Water Quality Monitoring System----------"));
+  scale.set_scale();
+  scale.tare();  //Reset the scale to 0
+
+  long zero_factor = scale.read_average(); //Get a baseline reading
+  Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
+  Serial.println(zero_factor);
 }
+
 void loop() {
-  
-  int turbidityValue = analogRead(turbuditySensorPin);
-  //int turbidity = map(turbidityValue, 0, 2800, 5, 1);
-  //int turbidity = turbidityValue * (3.3 / 4096.0);
 
-  Serial.print(F("Turbudity: "));
-//  Serial.print(voltage);
-    Serial.print(turbidityValue);
-  Serial.print(F("\t"));
-   
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
 
-  // Value = analogRead(potPin);
-  // // Serial.print("PH Sensor Output (V): ");
-  // // Serial.println(Value);
+  Serial.print("Reading: ");
+  units = scale.get_units(), 10;
+  if (units < 0)
+  {
+    units = 0.00;
+  }
+  ounces = units * 0.035274;
+  Serial.print(units);
+  Serial.print(" grams"); 
+  Serial.print(" calibration_factor: ");
+  Serial.print(calibration_factor);
+  Serial.println();
 
-  // float voltage1 = Value * (3.3 / 4095.0);
-  // ph = (3.3 * voltage1);
-  // Serial.print(F("PH: "));
-  // Serial.print(ph);
-  // Serial.print(F("\t"));
-
-  sensor.requestTemperatures();
-  float tempinC = sensor.getTempCByIndex(0);
-  Serial.print(F("Temp: "));
-  Serial.println(tempinC);
-  Serial.println(F("******************************************************\n"));
-  
-
-  // digitalWrite(LED_BUILTIN, HIGH);
-  // delay(1000);
-  // digitalWrite(LED_BUILTIN, LOW);
-  // delay(1000);
-
-  //  String payload = "{\"TDS Sensor Output (V)\": " + String(voltage) + ",\"PH Sensor Output (V)\":" + String(Value) + ",\"PH Value\":" + String(ph) + ",\"Temperature\":" + String(tempinC) + "}";
-  //   mqttClient.poll();
-  //   mqttClient.beginMessage(deviceID);
-  //   mqttClient.print(payload);
-  //   mqttClient.endMessage();
-  delay(3000);
+  if(Serial.available())
+  {
+    char temp = Serial.read();
+    if(temp == '+' || temp == 'a')
+      calibration_factor += 1;
+    else if(temp == '-' || temp == 'z')
+      calibration_factor -= 1;
+  }
 }
-
-// void wifi_init() {
-//   // Set WiFi mode
-//   WiFi.mode(WIFI_STA);
-
-//   // Disconnect WiFi
-//   WiFi.disconnect();
-//   delay(100);
-
-//   // Initiate WiFi connection
-//   WiFi.begin(ssid, pass);
-
-//   // Print connectivity status to the terminal
-//   Serial.print("Connecting to WiFi...");
-//   while (true)
-//   {
-//     delay(1000);
-//     Serial.print(".");
-//     if (WiFi.status() == WL_CONNECTED)
-//     {
-//       Serial.println("");
-//       Serial.println("WiFi Connected.");
-
-//       Serial.print("Local IP: ");
-//       Serial.println(WiFi.localIP());
-//       Serial.print("RSSI: ");
-//       Serial.println(WiFi.RSSI());
-//       break;
-//     }
-//   }
-// }
-
-// void qubitro_init() {
-//   char host[] = "broker.qubitro.com";
-//   int port = 1883;
-//   mqttClient.setId(deviceID);
-//   mqttClient.setDeviceIdToken(deviceID, deviceToken);
-//   Serial.println("Connecting to Qubitro...");
-
-//   if (!mqttClient.connect(host, port))
-//   {
-//     Serial.print("Connection failed. Error code: ");
-//     Serial.println(mqttClient.connectError());
-//     Serial.println("Visit docs.qubitro.com or create a new issue on github.com/qubitro");
-//   }
-//   Serial.println("Connected to Qubitro.");
-//   mqttClient.subscribe(deviceID);
-//   delay(2000);
-
-// }
