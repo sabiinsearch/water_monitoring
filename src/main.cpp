@@ -37,6 +37,7 @@ void setup() {
 }
 
 void loop() {
+  
 
   scale.set_scale(calibration_factor); //Adjust to this calibration factor
 
@@ -61,4 +62,5 @@ void loop() {
     else if(temp == '-' || temp == 'z')
       calibration_factor -= 1;
   }
+  delay(1000);
 }
